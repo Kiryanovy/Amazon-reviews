@@ -30,7 +30,7 @@ class SentimentClassifier:
         self.use_transformer = use_transformer
         self.transformer_model = transformer_model
         
-        # Inicializa o altoritomo do modelo tradicional de ML escolhido
+        # Inicializa o algoritomo do modelo tradicional de ML escolhido
         if model_type == 'svm':
             self.model = LinearSVC(random_state=42)
         elif model_type == 'rf':
