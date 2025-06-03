@@ -1,3 +1,4 @@
+# Bibliotecas para manipulação de dados e machine learning
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -15,6 +16,7 @@ import pickle
 import os
 
 class SentimentClassifier:
+    """Classe principal que implementa o classificador de sentimentos"""
     def __init__(self, model_type='svm', use_transformer=True, transformer_model='all-MiniLM-L6-v2'):
         """
         Inicializa o classificador de sentimentos
@@ -23,11 +25,12 @@ class SentimentClassifier:
             use_transformer: Se True, usa SentenceTransformer para embeddings
             transformer_model: Nome do modelo transformer a ser usado
         """
+        # Configurações básicas do modelo
         self.model_type = model_type
         self.use_transformer = use_transformer
         self.transformer_model = transformer_model
         
-        # Inicializa o modelo tradicional
+        # Inicializa o altoritomo do modelo tradicional de ML escolhido
         if model_type == 'svm':
             self.model = LinearSVC(random_state=42)
         elif model_type == 'rf':
@@ -35,7 +38,7 @@ class SentimentClassifier:
         elif model_type == 'mlp':
             self.model = MLPClassifier(hidden_layer_sizes=(100, 50), random_state=42)
         
-        # Inicializa o transformer se necessário
+        # Inicializa o transformer se necessário, configurando o sistema de embeddings
         self.transformer = None
         if use_transformer:
             print(f"Carregando modelo {transformer_model}...")
@@ -48,13 +51,13 @@ class SentimentClassifier:
         self.scaler = StandardScaler(with_mean=False)  # with_mean=False para matrizes esparsas
     
     def get_embeddings(self, texts):
-        """Obtém embeddings usando o transformer ou feature extractor"""
+        """Obtém embeddings usando o transformer ou feature extractor, convertendo textos em vetores numéricos"""
         if self.use_transformer:
-            # Converte Series para lista
+            # Converte Series para lista usando embeddings semânticos modernos
             texts_list = texts.tolist() if isinstance(texts, pd.Series) else texts
             return self.transformer.encode(texts_list, show_progress_bar=True)
         else:
-            # Cria um DataFrame temporário para usar com o feature extractor
+            # Cria um DataFrame temporário para usar com o feature extractor usando TF-IDF tradicional
             temp_df = pd.DataFrame({'processed_text': texts})
             
             # Treina o TF-IDF se necessário
@@ -72,7 +75,7 @@ class SentimentClassifier:
             return self.feature_extractor.transform_embeddings(temp_df['processed_text'])
     
     def train(self, X_train, y_train):
-        """Treina o modelo"""
+        """Treina o modelo com os dados fornecidos"""
         print(f"Treinando modelo {self.model_type}...")
         
         # Normaliza os dados
@@ -82,7 +85,7 @@ class SentimentClassifier:
         self.model.fit(X_train_scaled, y_train)
     
     def predict(self, X):
-        """Faz previsões"""
+        """Faz previsões em novos dados"""
         X_scaled = self.scaler.transform(X)
         return self.model.predict(X_scaled)
     
@@ -90,7 +93,7 @@ class SentimentClassifier:
         """Avalia o modelo"""
         y_pred = self.predict(X_test)
         
-        # Calcula métricas
+        # Calcula métricas de performance do modelo
         accuracy = accuracy_score(y_test, y_pred)
         precision, recall, f1, _ = precision_recall_fscore_support(y_test, y_pred, average='weighted')
         
@@ -102,7 +105,7 @@ class SentimentClassifier:
         }
     
     def save_model(self, output_dir='models'):
-        """Salva o modelo"""
+        """Salva o modelo treinado em disco"""
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
@@ -118,7 +121,7 @@ class SentimentClassifier:
             }, f)
     
     def load_model(self, output_dir='models'):
-        """Carrega o modelo salvo"""
+        """Carrega o modelo previamente salvo"""
         model_path = os.path.join(output_dir, f'sentiment_classifier_{self.model_type}.pkl')
         if os.path.exists(model_path):
             with open(model_path, 'rb') as f:
@@ -134,7 +137,7 @@ class SentimentClassifier:
 
 def train_and_evaluate_models(df, models_config):
     """
-    Treina e avalia múltiplos modelos
+    Treina e avalia múltiplos modelos, comparando suas performances
     Args:
         df: DataFrame com os dados
         models_config: Lista de configurações de modelos para testar
@@ -150,31 +153,28 @@ def train_and_evaluate_models(df, models_config):
     
     results = {}
     
-    # Treina e avalia cada modelo
+    # Loop que treina e avalia cada modelo
     for config in models_config:
         model_name = f"{config['type']}_{'transformer' if config['use_transformer'] else 'traditional'}"
         print(f"\nTreinando modelo: {model_name}")
         
-        # Inicializa o classificador
+        # Inicializa e treina o classificador
         classifier = SentimentClassifier(
             model_type=config['type'],
             use_transformer=config['use_transformer']
         )
         
-        # Obtém embeddings
+        # Obtém embeddings e treina
         X_train_emb = classifier.get_embeddings(X_train)
         X_test_emb = classifier.get_embeddings(X_test)
-        
-        # Treina o modelo
         classifier.train(X_train_emb, y_train)
         
-        # Avalia o modelo
+        # Avalia a performance e salva o modelo
         metrics = classifier.evaluate(X_test_emb, y_test)
         results[model_name] = metrics
-        
-        # Salva o modelo
         classifier.save_model()
-        
+
+        # Exibe resultados
         print(f"Resultados para {model_name}:")
         for metric, value in metrics.items():
             print(f"{metric}: {value:.4f}")
@@ -192,7 +192,7 @@ def simulate_reviews(text, models_dir='models'):
     """
     results = {}
     
-    # Lista todos os modelos salvos
+    # Itera e lista todos os modelos salvos
     for file in os.listdir(models_dir):
         if file.startswith('sentiment_classifier_'):
             model_type = file.split('_')[2].split('.')[0]
@@ -218,7 +218,7 @@ def simulate_reviews(text, models_dir='models'):
 if __name__ == "__main__":
     # Carrega e pré-processa os dados
     print("Carregando e pré-processando dados...")
-    df = load_amazon_reviews(sample_size=10000)  # Usando amostra menor para teste
+    df = load_amazon_reviews(sample_size=10000)  # Amostra menor para teste
     processed_df = preprocess_dataset(df)
     
     # Configuração dos modelos para testar
@@ -229,10 +229,10 @@ if __name__ == "__main__":
         {'type': 'mlp', 'use_transformer': True}
     ]
     
-    # Treina e avalia os modelos
+    # Execução do pipeline de treinamento e avaliação dos modelos
     results = train_and_evaluate_models(processed_df, models_config)
     
-    # Exemplo de simulação
+    # Exemplo prático de simulação
     print("\nTestando simulação de reviews:")
     test_review = "Produto horrível, não recomendo."
     predictions = simulate_reviews(test_review)
