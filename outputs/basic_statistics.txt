@@ -1,0 +1,5 @@
+Dataset Statistics
+====================
+Total number of reviews: 3999723
+Average sentiment: 1.50
+Median sentiment: 2.0
