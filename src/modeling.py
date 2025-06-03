@@ -1,17 +1,21 @@
-# Bibliotecas para manipulação de dados e machine learning
+# === BIBLIOTECAS PARA MANIPULAÇÃO DE DADOS ===
 import numpy as np
 import pandas as pd
+# === BIBLIOTECAS DE MACHINE LEARNING (SCIKIT-LEARN) ===
 from sklearn.model_selection import train_test_split
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from sklearn.preprocessing import StandardScaler
+# === BIBLIOTECAS DE NLP E DEEP LEARNING ===
 from sentence_transformers import SentenceTransformer
 import torch
+# === MÓDULOS CUSTOMIZADOS DO PROJETO ===
 from src.data_loading import load_amazon_reviews
 from src.preprocessing import preprocess_dataset
 from src.feature_extraction import FeatureExtractor
+# === BIBLIOTECAS DO SISTEMA ===
 import pickle
 import os
 
