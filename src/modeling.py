@@ -8,9 +8,9 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support
 from sklearn.preprocessing import StandardScaler
 from sentence_transformers import SentenceTransformer
 import torch
-from data_loading import load_amazon_reviews
-from preprocessing import preprocess_dataset
-from feature_extraction import FeatureExtractor
+from src.data_loading import load_amazon_reviews
+from src.preprocessing import preprocess_dataset
+from src.feature_extraction import FeatureExtractor
 import pickle
 import os
 

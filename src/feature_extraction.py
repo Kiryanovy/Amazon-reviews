@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.decomposition import TruncatedSVD
-from data_loading import load_amazon_reviews
-from preprocessing import preprocess_dataset
+from src.data_loading import load_amazon_reviews
+from src.preprocessing import preprocess_dataset
 import pickle
 import os
 
@@ -21,8 +21,8 @@ class FeatureExtractor:
         # Inicializa os modelos
         self.tfidf = TfidfVectorizer(
             max_features=max_features,
-            min_df=5,              # Ignora termos que aparecem em menos de 5 documentos
-            max_df=0.8,           # Ignora termos que aparecem em mais de 80% dos documentos
+            min_df=1,              # Aceita termos que aparecem em pelo menos 1 documento
+            max_df=1.0,           # Aceita termos que aparecem em até 100% dos documentos
             ngram_range=(1, 2)    # Considera unigramas e bigramas
         )
         
@@ -57,15 +57,20 @@ class FeatureExtractor:
     
     def transform_embeddings(self, texts):
         """
-        Transforma textos em vetores de embedding
+        Transforma textos em vetores de embedding usando TF-IDF + SVD
         Args:
-            texts: Lista de textos
+            texts: Lista de textos para transformar
         Returns:
             Matriz de embeddings
         """
         # Primeiro aplica TF-IDF
-        tfidf_matrix = self.tfidf.transform(texts)
-        # Depois transforma com TruncatedSVD
+        tfidf_matrix = self.transform_tfidf(texts)
+        
+        # Se o embedder ainda não foi treinado, treina com estes dados
+        if not hasattr(self.embedder, 'components_'):
+            self.embedder.fit(tfidf_matrix)
+        
+        # Transforma com TruncatedSVD
         return self.embedder.transform(tfidf_matrix)
     
     def save_models(self, output_dir='models'):

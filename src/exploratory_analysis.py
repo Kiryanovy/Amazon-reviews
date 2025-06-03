@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from wordcloud import WordCloud
 from collections import Counter
-from data_loading import load_amazon_reviews
+from src.data_loading import load_amazon_reviews
 
 def plot_rating_distribution(df):
     """Plot the distribution of ratings"""

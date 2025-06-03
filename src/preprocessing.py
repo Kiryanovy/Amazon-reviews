@@ -4,7 +4,7 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer, WordNetLemmatizer
-from data_loading import load_amazon_reviews
+from src.data_loading import load_amazon_reviews
 import os
 
 def download_nltk_resources():
